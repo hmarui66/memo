@@ -1,6 +1,7 @@
 # Chronicle Mapというプロジェクトが気になる
 
 created: 2025-05-08
+tag: #tech
 
 ## 概要
 
