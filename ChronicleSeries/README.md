@@ -12,3 +12,7 @@ https://github.com/OpenHFT
   - ConcurrentMap 実装
 - [Java Thread Affinity](https://github.com/OpenHFT/Java-Thread-Affinity)
 - [Chronicle Runtime Compiler](https://github.com/OpenHFT/Java-Runtime-Compiler)
+
+## メモ
+
+- [Chronicle Wire](ChronicleWire.md)
