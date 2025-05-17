@@ -39,4 +39,10 @@
   - cost/benefit の rank ですべての joins をソート
 - query graph が cyclic の場合、IKKBZ の実行前に minimum spanning tree を構築
   - IKKBZ は acyclic query graph を必要とするため
-
+- <img width="377" alt="image" src="https://github.com/user-attachments/assets/146b730f-e571-49d8-8338-a64024f4e510" />
+  - full algorithm
+  - まず linearize のために IKKBZ を実行
+  - linearization 結果に対する最適な bushy plan を構築するために DP を実行
+    - IKKBZ では optimal left-deep tree が見つけられるが、あくまでそれは linearize に用いられるだけ
+  - DP は DPSize のような normal な algorithm ではなく、linearized query graph 用の custom algorithm を用いる
+- 100 relations まで扱えるがそれ以上の場合は cheaper な algorithm を使う必要がある
