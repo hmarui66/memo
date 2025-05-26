@@ -36,4 +36,5 @@ WHERE R.a = S.b AND S.c = T.d AND T.e = 10
     - Nested Loops Join
     - Merge Join
     - Sort
-  - 主要な RDBMs における Query execution は iterator model にしたがってお手、Open, GetNext, Close メソッドを実装
+  - 主要な RDBMs における Query execution は iterator model にしたがって、Open, GetNext, Close メソッドを実装
+  
