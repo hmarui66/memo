@@ -72,4 +72,34 @@ and Vectorized Queries but were afraid to ask" を参照
 
 logical plan に対する実行プランの例
 
+- a
+  - select は table scan, index scan or index search を用いて実装可能
+  - join は nested loop join, hash join, merge join のいずれかで実装可能
+- b
+  - nested loop join は S, T の join サイズが小さく、R.a に index が存在する場合、最も効率的となる可能性がある
+- c
+  - S.b, R.a にインデックスがある場合、すなわち merge join が必要とする sort を index が提供できる場合効率的
+- d
+  - S, T の結合サイズが大きい場合に最適となる可能性がある
 
+### Cost estimation
+
+- 実行プランによってかかる時間や消費リソース(e.g., CPU, memory, I/O)が大きく変わりうる
+- 大きな database 上での複雑なクエリにおける、良いプランと悪いプランでは、実行時間が数桁変わり得る
+- 良いプランを選択するために、たいていの query optimizer は cost model を活用
+  - 実行プランの作業を推定し、相対比較が正確になるように
+  - 特に physical operator はそれを実装する algorithm によって実施される作業を見積もる必要がある
+    - 見積もりはその operation への input/output relations のサイズや統計的特徴を必要とする
+- cost は少なくとも 3 軸を(CPU, memory, I/O)を持つが、cost model はそれらを組み合わせた multi-dimensional costs を用いてプラン同士を比較可能にする
+
+### Search algorithm
+
+- 原則として実行プランを網羅的に列挙し、コスト見積もりを呼び出して各プランのコストを決定し、推定コストが最も低いプランを見つける
+- プランの一部は共通の logical/physical operator を共有できるので、重複探索を避けるために列挙を慎重におこなう
+- 網羅的な列挙はコストがかかりすぎる可能性があるので、品質を大きく損なわずに列挙コストを削減する必要がある
+
+良い optimizer は、
+
+- (a) 有望なプランの十分に大きな search space を考慮
+- (b) 実行プランのコストを十分に正確にモデル化、コストが大きく異なるプランを区別
+- (c) 低コストのプランを効率的に見つける search algorithm を提供
