@@ -103,3 +103,27 @@ logical plan に対する実行プランの例
 - (a) 有望なプランの十分に大きな search space を考慮
 - (b) 実行プランのコストを十分に正確にモデル化、コストが大きく異なるプランを区別
 - (c) 低コストのプランを効率的に見つける search algorithm を提供
+
+## 1.2 System R Query Optimizer
+
+1.1 で言及した key challenges に対して System R の query optimizer がどう対処したのかを説明。
+→開発されたテクニックは後続の query optimizer に大きな impact
+
+### Search space
+
+- cost-based & クエリの Select-Project-Join(SPJ) class にフォーカス
+- Select operation を実装するため physical operator には Table Scan & Index Scan が含まれていた
+- Join については Nested Loops Join & Merge Join(両方の inputs が join column でソートされている必要がある)
+- Fig. 1.2, 1.3 にあるように SPJ queries に対していくつかの logical query trees と execution plans が存在する
+  - join は associative & commutable なので、Scan と Join operations に対して複数の physical operator の選択肢があるため
+- SPJ queries のために System R が探索する logical query tress の space は binary join operations の線形シーケンスの space が含まれていた
+  - e.g., $Join(Join(R, S), T), U)$
+
+<img width="417" alt="image" src="https://github.com/user-attachments/assets/46cf706e-5859-40cd-a9b3-99933535146b" />
+
+- 1.4a: Join operations の線形シーケンスの logical query tree の例
+- 1.4b: a bushy plan で System R の search space には無い
+
+### Cost model
+
+
