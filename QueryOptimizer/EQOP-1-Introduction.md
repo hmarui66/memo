@@ -134,4 +134,20 @@ logical plan に対する実行プランの例
   - インデックスページ数
   - 各列の unique 値数
   - ...
-- single selection や join 述語の選択性を算出する数式
+- single selection 述語や join 述語の選択率を算出する一連の数式を提供
+  - selection 述語の論理積を含む where 句の選択率はすべての述語の選択率を乗算して算出
+    - 述語は独立していると仮定
+  - join の出力サイズのカーディナリティは2つの入力リレーションのカーディナリティの積を取り、述語の選択率を乗算して推定
+
+### Search algorithm
+
+- 動的計画法を使用して best な結合順序を見つける
+  - cost model が "the principle of optimality" を満たすという仮定に基づく
+    - →線形シーケンスの join の search space において、n 個のリレーションの join の最適計画は n-1 個の join の sub-expression の最適計画に追加の join を拡張することで見つけられると仮定
+  - $R, S, T$ のリレーションを結合する際の最適なプラン $P_{RST}$ は以下の中から見つけることができる
+    - $R$ を $P_{ST}$ と結合
+    - $S$ を $P_{RT}$ と結合
+    - $T$ を $P_{RS}$ と結合
+  - すべての結合順序を列挙する $O(n!)$ と対象的に、動的計画法では $O(n2^{n-1})$ を列挙するため、高速
+    - 指数関数的な時間計算量ではある
+- search algorithm 
