@@ -21,3 +21,24 @@ https://duckdb.org/why_duckdb#peer-reviewed-papers-and-thesis-works
 https://duckdb.org/why_duckdb#standing-on-the-shoulders-of-giants
 
 Thomas Neumann の研究がかなり参照されている
+
+## DuckDB のブログ
+
+### Querying Parquet with Precision Using DuckDB
+
+https://duckdb.org/2021/06/25/querying-parquet.html
+
+- Parquet を効率的に読める
+- Pandas との比較で圧倒
+- Python ライブラリで relational API も使える
+
+```py
+con.from_parquet('alltaxi.parquet')
+   .aggregate('passenger_count, count(*)')
+   .df()
+```
+
+### Fastest Table Sort in the West – Redesigning DuckDB’s Sort
+
+https://duckdb.org/2021/08/27/external-sorting.html
+
