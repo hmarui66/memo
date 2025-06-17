@@ -30,7 +30,7 @@ https://duckdb.org/2021/06/25/querying-parquet.html
 
 - Parquet を効率的に読める
 - Pandas との比較で圧倒
-- Python ライブラリで relational API も使える
+- Python ライブラリで relational API も使える(効率は維持)
 
 ```py
 con.from_parquet('alltaxi.parquet')
@@ -41,4 +41,8 @@ con.from_parquet('alltaxi.parquet')
 ### Fastest Table Sort in the West – Redesigning DuckDB’s Sort
 
 https://duckdb.org/2021/08/27/external-sorting.html
+
+- 並列ソートとメモリを超えるデータサイズもサポート
+- Goetz Graefeのデータベースシステムにおけるソートのサーベイ
+- ソートのコストは、値の比較とデータの移動によって大きく左右
 
