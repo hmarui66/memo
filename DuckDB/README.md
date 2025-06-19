@@ -57,5 +57,23 @@ https://duckdb.org/2021/08/27/external-sorting.html
 - Radix sort
    - 分布ベース
    - quicksort や mergesort は $O(n \log n)$ の時間計算量だが、 Radix sort は key の幅 $k$ に対して $O(nk)$  の時間計算量
-   
+   - → $n$ が大きいほどスケール
+- Two-Phase Parallel Sorting
+   - Morsel 駆動並列処理を採用
+      - https://15721.courses.cs.cmu.edu/spring2016/papers/p743-leis.pdf
+   - 2 phase
+      1. 複数のスレッドがテーブルからほぼ同量のデータを並列に収集 → 収集したデータを radix sort
+      2. 各スレッドのソート済データを merge sort
+   - merge sort の実装
+      - K-way merge
+         - K 個のリストを1つのソート済リストに1回のパスでマージ
+      - Cascade merge
+         - ソート済リストが1つになるまでソート済リストを2つずつマージ
+         - K-way merge よりも効率的で in-memory sort に使用される
+         - →こちらを採用(高い in-memory 性能を実現するため)
+            - ソート対象のブロックがマージされていくと、スレッドを稼働するのに十分なブロック数を確保できなくなる
+            - 特に最後の2つのブロックのマージは1つのスレッドで処理するため処理速度が低下する
+            - この phase を並列化するために Merge Path を実装
+               - https://arxiv.org/pdf/1406.2628
+
 
