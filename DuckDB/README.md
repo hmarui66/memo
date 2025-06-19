@@ -54,4 +54,8 @@ https://duckdb.org/2021/08/27/external-sorting.html
 - binary 文字列比較で比較演算を簡素化しソート性能向上
    - すべての order by を単一の binary sequence に encode
    - memcmp で比較
+- Radix sort
+   - 分布ベース
+   - quicksort や mergesort は $O(n \log n)$ の時間計算量だが、 Radix sort は key の幅 $k$ に対して $O(nk)$  の時間計算量
+   
 
