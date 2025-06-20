@@ -75,5 +75,9 @@ https://duckdb.org/2021/08/27/external-sorting.html
             - 特に最後の2つのブロックのマージは1つのスレッドで処理するため処理速度が低下する
             - この phase を並列化するために Merge Path を実装
                - https://arxiv.org/pdf/1406.2628
-
+- Columns or Rows?
+   - DuckDB は列指向レイアウトでデータを保持
+      - vectorized execution engine で処理しやすい
+      - SIMD 活用する機会も豊富
+   - table を sort する際は row 全体でシャッフルする必要がある
 
