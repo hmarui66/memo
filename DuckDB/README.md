@@ -112,3 +112,46 @@ https://duckdb.org/2021/08/27/external-sorting.html
    - 結果のサマリは DuckDB が概ね良好(ベンチマーク設定の偏り具合は判断できず)
 - 参考: [These Rows Are Made for Sorting and That’s Just What We’ll Do](https://hannes.muehleisen.org/publications/ICDE2023-sorting.pdf) ICDE'23
 
+### Windowing in DuckDB
+
+https://duckdb.org/2021/10/13/windowing.html
+
+Pipeline Breaking:
+
+window 演算は関数の計算前に入力を全て読み込む必要がある。
+
+```sql
+SELECT "Plant", "MWh"
+FROM (
+    SELECT "Plant", "MWh",
+        rank() OVER (
+            PARTITION BY "Plant"
+            ORDER BY "Date" DESC) AS r
+    FROM table) t
+WHERE r = 1;
+```
+
+→テーブル全体をマテリアライズ、パーティション分割、パーティションをソート、パーティションから単一の行を取得、が必要
+
+```sql
+SELECT table."Plant", "MWh"
+FROM table,
+    (SELECT "Plant", max("Date") AS "Date"
+     FROM table GROUP BY 1) lasts
+WHERE table."Plant" = lasts."Plant"
+  AND table."Date" = lasts."Date";
+```
+
+テーブルスキャンは2回必要だが、こちらの join クエリの方が速い。
+
+あるデータセットにおいては 20 倍くらい差があったとのこと。
+ただ、window は分析に不可欠なのでできるだけ高速化を行なっている。
+
+高速化テクニック:
+
+- partitioning and sorting
+    - partition と order の両方でソートする必要あり、リソースを消費する
+    - Leis の提案手法であるパーティションの分割スキームを採用
+        - https://www.vldb.org/pvldb/vol8/p1058-leis.pdf
+    - まず input をスレッドに対して分配し、各スレッドでハッシュベースのチャンクに分けて、スレッド間で統合し、ソートする
+- aggregation
