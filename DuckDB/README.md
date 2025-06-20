@@ -80,4 +80,35 @@ https://duckdb.org/2021/08/27/external-sorting.html
       - vectorized execution engine で処理しやすい
       - SIMD 活用する機会も豊富
    - table を sort する際は row 全体でシャッフルする必要がある
+      - 列レイアウトを維持することもできるが、キー列をソート→ペイロード列をソートが必要になる
+         - メモリ内で random access が必要になり、ペイロード列が多いと遅くなる
+      - 列を行に変換すると並び替えは簡単だが、列→行 だけでなく 行→列 の変換も必要になる
+      - そもそも外部ソートサポートのため disk にオフロード可能な buffer 管理ブロックにデータを格納するため変換は実質無料
+   - join, aggregation など行ベースの演算子もあり、これらのための統一された行レイアウトがあるのでソートでも利用
+- External sorting
+   - buffer manager は memory から disk へ block を unload できる
+      - ソートにおいて積極的には実施されず、memory がいっぱいになりそうな場合のみ
+      - least-recently-used の queue は appendix で説明
+   - 整数のような固定サイズの列は unload は簡単だが、文字列のような可変サイズの列では難しい
+   - 行レイアウトは固定サイズの行を使用するため任意のサイズの文字列は格納できない
+      - 文字列はポインタで表現し、実際の文字列データは別の memory block(string heap)を指す
+      - heap を変更して、buffer-managed block に文字列を行ごとに保存
+   - 行レイアウトに heap 内の先頭を指す 8 バイトの `pointer` フィールドを追加
+      - memory 内表現では不要だが disk 上で役立つ
+   - データが memory に収まる場合
+      - heap block は固定されたまま
+      - sort 時に行のみが並び替えられる
+   - データ memory に収まらない場合
+      - block を disk に offload
+      - sort 時に heap も並び替え
+      - heap block が disk に offload されると block を指すポインタは無効化
+         - load し直すと pointer は変更されてしまう
+         - 8 バイトの `pointer` フィールドを heap block 内のどこにあるかを示す `offset` フィールドで上書き
+            - → pointer swizzling (と書いてあるけど、unswizzle では?)
+         - load し直す場合は pointer に変換
+- Comparison with Other Systems
+   - ClickHouse, HyPer, Pandas, SQLite と比較
+   - M1 Mac で実行しており HyPer は x86 エミュレーターで動作するので不利
+   - 結果のサマリは DuckDB が概ね良好(ベンチマーク設定の偏り具合は判断できず)
+- 参考: [These Rows Are Made for Sorting and That’s Just What We’ll Do](https://hannes.muehleisen.org/publications/ICDE2023-sorting.pdf) ICDE'23
 
