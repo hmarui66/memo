@@ -176,3 +176,40 @@ WHERE table."Plant" = lasts."Plant"
       - window function は SQL 標準で定義されている特殊な ordered set aggregation と密接に関連
       - 一部の DBMS は window 関数でもこの処理を使用しているが、sort が不要なのであまり効率的ではない
       - DuckDB はより高速な集計関数に変換
+
+### Parallel Grouped Aggregation in DuckDB
+
+https://duckdb.org/2022/03/07/aggregate-hashtable.html
+
+- group by をどのように計算するか、多くの設計判断が必要
+- 主な問題: input テーブル内でグループが任意の順序で出現する可能性があること
+   - input がすでに grouping 列でソートされている場合は、現在の値を以前の値と比較するだけでよい
+   - grouping された集計のため、最初に input をソートすれば良いがソートの計算量は高い
+- Hash Tables for Aggregation
+   - 行を追加するには sort よりも遥かに簡単
+   - 集計値をエントリとして保持すればよいが、collision に対応する必要がある
+   - linear probing を採用
+   - シンプルな構造の hash table のサイズ変更時は、すべてのデータを移動する必要がありコストが高い
+   - サイズ変更を効率的にサポートするために、grouping 値とグループの集約値を含む payload block と、それを指す pointer 配列で構成される2部構成の hash table を実装
+      - サイズ変更時
+         - pointer 配列を破棄してより大きな配列を割り当て
+         - すべての payload block を再度読み取って grouping 値を hash しそれらへの pointer を新たな pointer 配列へ再挿入
+         - 再 hash のコストを減らすため payload block に raw hash 値を
+         - <img width="513" alt="image" src="https://github.com/user-attachments/assets/d3d40cbd-0d44-44f1-8c9c-ae492a2a7032" />
+      - 欠点はエントリの検索
+         - pointer 配列と payload block 内のエントリに順序付けがないので memory 階層で random access による stall
+         - pointer 配列に grouping hash 値の 1-2 バイトを追加し、検索時に hash bit が一致した場合のみ pointer をたどることで最適化
+- Parallel Aggregation
+   - parallelism work と hash table は一般的にうまく機能しない
+   - 各スレッドに下流の演算子からデータを読み取らせて個別の local hash table を構築させ、後で1つのスレッドからマージすることもできる
+      - グループが少なければうまく機能する
+      - input と同じ数のグループが存在する可能性があり、その場合は機能しない
+   - parallel merge of the parallel hash tables が必要
+      - Leis の手法を採用
+         - https://15721.courses.cs.cmu.edu/spring2016/papers/p743-leis.pdf
+      - 各スレッドは group hash 上の radix-partitioning に基づいた複数の partitioned hash tables を構築
+      - <img width="536" alt="image" src="https://github.com/user-attachments/assets/814ac41d-05a2-4e7b-a529-956cbd2c5482" />
+      - phase1: スレッド間通信を必要とせず、hash 値を用いてグループの独立した partition を作成
+      - phase2: worker thread に個別の partiiton を割り当ててマージ
+         - partition は hash の radix partitioning scheme を用いて作成されるため、worker は独立してマージできる
+
