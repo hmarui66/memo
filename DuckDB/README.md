@@ -219,3 +219,10 @@ https://duckdb.org/2022/03/07/aggregate-hashtable.html
          - その後、すべてのスレッドが分割可能な hash table の複数のセットを構築
          - 多数の異なる group を持つデータセットで特に効果的で、input において grouping 値が何らかの形で密集している場合に有効
             - 日付順に並べられたデータセットを日ごとにグルーピングする場合など
+
+### Analytics-Optimized Concurrent Transactions
+
+https://duckdb.org/2024/10/30/analytics-optimized-concurrent-transactions.html
+
+- 分析用途だと書き込みが競合することは稀なので、楽観的同時実行制御
+- Neumann の論文の MVCC に着想を得た方式を採用
