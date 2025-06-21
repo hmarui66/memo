@@ -212,4 +212,10 @@ https://duckdb.org/2022/03/07/aggregate-hashtable.html
       - phase1: スレッド間通信を必要とせず、hash 値を用いてグループの独立した partition を作成
       - phase2: worker thread に個別の partiiton を割り当ててマージ
          - partition は hash の radix partitioning scheme を用いて作成されるため、worker は独立してマージできる
-
+   - 2つのさらなる最適化
+      - hash table の分割は単一スレッドの集約 hash table のエントリ数が固定制限を超えたときのみ
+         - 分割とマージにはコストがかかるため
+      - hash table の pointer 配列が特定のしきい値を超えると hash table への値の追加を停止
+         - その後、すべてのスレッドが分割可能な hash table の複数のセットを構築
+         - 多数の異なる group を持つデータセットで特に効果的で、input において grouping 値が何らかの形で密集している場合に有効
+            - 日付順に並べられたデータセットを日ごとにグルーピングする場合など
