@@ -154,4 +154,25 @@ WHERE table."Plant" = lasts."Plant"
     - Leis の提案手法であるパーティションの分割スキームを採用
         - https://www.vldb.org/pvldb/vol8/p1058-leis.pdf
     - まず input をスレッドに対して分配し、各スレッドでハッシュベースのチャンクに分けて、スレッド間で統合し、ソートする
+    - DuckDB の sorting の改善も反映されパフォーマンス向上
 - aggregation
+   - Naive Windowed Aggregation
+      - 最も簡単な集計方法: 状態の初期化→window frame内のすべての値で状態を更新→finalizeで集計値を生成
+      - 非効率
+      - 累計を計算するにはすべての値ごとに累計を再加算して $O(N^2)$
+   - Segment Tree Aggregation
+      - DuckDB も採用
+      - Leis の提案手法
+      - tree 状に集計値を記録しておき、window frame ごとに必要な集計を最小限に抑える
+      - <img width="675" alt="image" src="https://github.com/user-attachments/assets/1f210034-7ba3-49bf-9f1f-dbdc3fababfa" />
+   - General Windowed Aggregation
+      - Segment Tree の欠点は、多数の中間状態を管理する必要があること
+      - holistic aggregation では全体を考慮して集計を行う必要があり、状態管理が煩雑になる
+         - `mode`, `quantile` など
+      - Wesley and Xu's の手法を使用
+         - https://www.vldb.org/pvldb/vol9/p1221-wesley.pdf
+         - segment tree を集約固有のデータ構造に一般化
+   - Ordered Set Aggregation
+      - window function は SQL 標準で定義されている特殊な ordered set aggregation と密接に関連
+      - 一部の DBMS は window 関数でもこの処理を使用しているが、sort が不要なのであまり効率的ではない
+      - DuckDB はより高速な集計関数に変換
