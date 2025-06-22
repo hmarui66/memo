@@ -239,3 +239,11 @@ https://duckdb.org/2024/10/30/analytics-optimized-concurrent-transactions.html
     - 大きな csv ファイルなどを取り込む場合、WAL とデータブロックに多重に読み書きするのを防ぐ工夫をしている
     - 直接データブロックに書き出して、WAL から参照
     - ロールバック時には該当領域は空きブロックとしてマーク
+ 
+## DuckDB に関するブログ
+
+- [🦆🦆🦆🦆🦆🦆DuckDB入門🦆🦆🦆🦆🦆🦆](https://zenn.dev/notrogue/articles/1193d0ab8d8eda)
+   - [SQLite との比較](https://zenn.dev/notrogue/articles/1193d0ab8d8eda#sqlite%E3%81%A8%E3%81%AE%E6%AF%94%E8%BC%83)
+   - [Sortに関する論文: Efficient External Sorting in DuckDB](https://ceur-ws.org/Vol-3163/BICOD21_paper_9.pdf)
+- [シリーズ：DuckDBが採択した論文：MonetDB/X100: Hyper-Pipelining Query Execution
+](https://yohei.codes/jp/2024/08/16/paper-monet-db-x-100.html)
