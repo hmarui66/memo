@@ -20,8 +20,16 @@ Offset-value coding(OVC) はソートされたデータを扱う際のパフォ�
 
 ソートされた A < B < C について、
 
-$ovc(A, C) = max(ovc(A, B), ovc(B, C))$
+$$ovc(A, C) = max(ovc(A, B), ovc(B, C))$$
 
 となる。(降順の場合は min を使用)
 
 OVCは文字列比較ではなく、単純な整数操作で計算できる。
+
+上記を「フィルタ定理」で拡張。
+
+$$X_0 < X_1 < ... < X_n$$ のついて、
+
+$$ovc(X_0, X_n) = ovc(X_(i-1), X_i)$$
+
+$$\displaystyle \max_{i=1}^n a_i$$
