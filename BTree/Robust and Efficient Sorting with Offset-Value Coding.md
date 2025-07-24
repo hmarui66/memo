@@ -50,3 +50,9 @@ OVC はオペレーターからオペレーターに持ち運びできる。
 - Knuth の見積もり: 1960s において 25-50% のコンピュートタイムが sorting と searching に費やされている。
 - いくつかの benchmarking から、初期のターゲットを external merge sort における count と comparisons の削減へ
 - OVC は prefix truncation と run-length endocing などと強くリンク
+
+### 2 APPLICATION CONTEXT: QUERY PROCESSING IN DATA WAREHOUSES
+
+- relational query processing over large and complex data warehouses がターゲット
+- 各カラムが異なる値を3つ程度しか持たない & カラム数は10や20を用いてソートするようなケースでは深い比較が必要にある
+  - 100億 = $3^21$ なので 21 個のカラムを組み合わせるとユニークになる
