@@ -42,3 +42,11 @@ OVC はオペレーターからオペレーターに持ち運びできる。
 ### 計算の複雑性
 
 従来のソートの $O(N * log N)$ ではなく $O(K * N)$ を可能にする。
+
+## 論文
+
+### INTRODUCTION
+
+- Knuth の見積もり: 1960s において 25-50% のコンピュートタイムが sorting と searching に費やされている。
+- いくつかの benchmarking から、初期のターゲットを external merge sort における count と comparisons の削減へ
+- OVC は prefix truncation と run-length endocing などと強くリンク
