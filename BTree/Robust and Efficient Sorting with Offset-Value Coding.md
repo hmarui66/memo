@@ -56,3 +56,10 @@ OVC はオペレーターからオペレーターに持ち運びできる。
 - relational query processing over large and complex data warehouses がターゲット
 - 各カラムが異なる値を3つ程度しか持たない & カラム数は10や20を用いてソートするようなケースでは深い比較が必要にある
   - 100億 = $3^21$ なので 21 個のカラムを組み合わせるとユニークになる
+- 分析処理のパラダイムにかかわらず(Map-Reduce, Flume, relational query execution plan) large dataset を処理・マッチングさせるためのアプローチは3つある
+- First
+  - b-trees のような永続インデックスを作成/メンテして、nested-loops join や look-up join などのアルゴリズム内で search
+- Second
+  - datasets が sort されシンプル・効率的なアルゴリズム(in-stream 集約や merge join)で処理
+- Third
+  - in-memory hash tables は永続インデックスよりも速い、hash tables を超える場合はバラバラの overflow files へのパーティショニングで巨大な inputs や、より一般的には memory 階層のステップに対処
